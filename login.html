@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Casino Login</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="login-container">
+    <h1 class="login-title">🎰 Welcome to Elite Casino</h1>
+    <form id="login-form">
+      <label for="username">Enter your username:</label>
+      <input type="text" id="username" required>
+      <button type="submit">Enter Casino</button>
+    </form>
+    <p id="login-error" class="hidden">Please enter a valid name.</p>
+  </div>
+
+  <script>
+    const form = document.getElementById("login-form");
+    const usernameInput = document.getElementById("username");
+    const error = document.getElementById("login-error");
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const username = usernameInput.value.trim();
+      if (username.length > 0) {
+        localStorage.setItem("casinoUser", username);
+        if (!localStorage.getItem("casinoBalance")) {
+          localStorage.setItem("casinoBalance", 1000); // initial balance
+        }
+        window.location.href = "index.html";
+      } else {
+        error.classList.remove("hidden");
+      }
+    });
+  </script>
+</body>
+</html>

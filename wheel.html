@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wheel of Fortune</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="game-container">
+    <h1>🎡 Wheel of Fortune</h1>
+    <div class="wheel-wrapper">
+      <div class="wheel" id="wheel">
+        <div class="segment" style="--i:0">$100</div>
+        <div class="segment" style="--i:1">$200</div>
+        <div class="segment" style="--i:2">$500</div>
+        <div class="segment" style="--i:3">Lose</div>
+        <div class="segment" style="--i:4">$300</div>
+        <div class="segment" style="--i:5">$0</div>
+        <div class="segment" style="--i:6">$750</div>
+        <div class="segment" style="--i:7">Jackpot</div>
+      </div>
+      <div class="pointer"></div>
+    </div>
+    <button class="spin-button" onclick="spinWheel()">Spin the Wheel</button>
+    <p id="wheelResult" class="result-text"></p>
+    <button class="back-button" onclick="goBack()">⬅ Back to Home</button>
+  </div>
+
+  <audio id="spinSound" src="audio/spin.mp3"></audio>
+  <audio id="winSound" src="audio/win.mp3"></audio>
+  <audio id="loseSound" src="audio/lose.mp3"></audio>
+
+  <script>
+    const wheel = document.getElementById("wheel");
+    const resultText = document.getElementById("wheelResult");
+
+    const outcomes = [100, 200, 500, -1, 300, 0, 750, 1000];
+
+    function spinWheel() {
+      document.getElementById("spinSound").play();
+      const deg = Math.floor(3600 + Math.random() * 720);
+      wheel.style.transition = "transform 4s cubic-bezier(.17,.67,.83,.67)";
+      wheel.style.transform = `rotate(${deg}deg)`;
+
+      const index = Math.floor(((deg / 45) % 8));
+      setTimeout(() => {
+        let reward = outcomes[8 - index - 1];
+        if (reward === -1) {
+          resultText.textContent = "😢 You lost! Better luck next time.";
+          document.getElementById("loseSound").play();
+          adjustBalance(-200);
+        } else {
+          resultText.textContent = `🎉 You won $${reward}!`;
+          document.getElementById("winSound").play();
+          adjustBalance(reward);
+        }
+      }, 4200);
+    }
+
+    function adjustBalance(amount) {
+      let current = parseInt(localStorage.getItem("casinoBalance") || "1000");
+      current += amount;
+      if (current < 0) current = 0;
+      localStorage.setItem("casinoBalance", current);
+    }
+
+    function goBack() {
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

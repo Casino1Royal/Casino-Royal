@@ -1,123 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Casino Royale - Home</title>
-<link rel="stylesheet" href="styles.css" />
-<style>
-  body.fade-out {
-    opacity: 0;
-    transition: opacity 0.6s ease;
-  }
-  .home-container {
-    max-width: 1024px;
-    margin: 100px auto 80px auto;
-    background: linear-gradient(145deg, #292d3d, #1a1b29);
-    border-radius: 32px;
-    padding: 48px 64px;
-    box-shadow:
-      inset 0 0 40px 12px #d7c859aa,
-      0 0 60px 15px #d7c859aa;
-    color: #f5e58f;
-    font-family: 'Playfair Display', serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    user-select: none;
-  }
-  .welcome-title {
-    font-size: 3.4rem;
-    margin-bottom: 24px;
-    text-shadow: 0 0 20px #d7c859cc;
-  }
-  .welcome-subtitle {
-    font-size: 1.6rem;
-    margin-bottom: 48px;
-    max-width: 720px;
-    text-align: center;
-    line-height: 1.5;
-  }
-  .game-buttons {
-    display: flex;
-    gap: 36px;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-  }
-  .game-btn {
-    background: #d7c859;
-    border: none;
-    border-radius: 60px;
-    padding: 24px 48px;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #19191a;
-    box-shadow:
-      0 0 40px 15px #d7c859cc,
-      inset 0 0 30px #fffacdcc;
-    cursor: pointer;
-    user-select: none;
-    transition: all 0.4s ease;
-    flex: 1 1 260px;
-    text-align: center;
-  }
-  .game-btn:hover {
-    box-shadow:
-      0 0 56px 22px #fffacd,
-      inset 0 0 40px #fffacd;
-    transform: scale(1.12);
-  }
-  .footer {
-    margin-top: 80px;
-    font-size: 0.9rem;
-    color: #a8a845cc;
-    text-align: center;
-    user-select: none;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elite Casino</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <header class="casino-header">
-    <h1>Casino Royale</h1>
-    <nav class="nav-tabs">
-      <button class="tab-button active" data-link="index.html">Home</button>
-      <button class="tab-button" data-link="blackjack.html">Blackjack</button>
-      <button class="tab-button" data-link="roulette.html">Roulette</button>
-      <button class="tab-button" data-link="slots.html">Slots</button>
-    </nav>
-    <div class="balance-container" id="balance-display">Balance: $1000</div>
-  </header>
-
-  <main class="home-container">
-    <h2 class="welcome-title">Welcome to Casino Royale</h2>
-    <p class="welcome-subtitle">
-      Step into the world of luxury and excitement. Try your luck at our thrilling games:
-      Blackjack, Roulette, and Slots. Place your bets, hit the tables, and spin to win big!
-      Your balance carries across all games. Good luck and may fortune favor you!
-    </p>
-    <div class="game-buttons">
-      <button class="game-btn" data-link="blackjack.html">Play Blackjack</button>
-      <button class="game-btn" data-link="roulette.html">Play Roulette</button>
-      <button class="game-btn" data-link="slots.html">Play Slots</button>
+  <div class="login-container">
+    <h1>🎰 Elite Casino</h1>
+    <div class="login-box">
+      <input type="text" id="username" placeholder="Enter your name..." />
+      <button onclick="login()">Enter Casino</button>
     </div>
-  </main>
+    <div class="player-info" id="playerInfo" style="display: none;">
+      <p>Welcome, <span id="displayName"></span>!</p>
+      <p>💰 Balance: $<span id="balance">0</span></p>
+    </div>
+  </div>
 
-<script>
-  // Navigation fade animation and balance sync
-  const balanceDisplay = document.getElementById('balance-display');
-  let balance = parseInt(localStorage.getItem('casinoBalance')) || 1000;
-  balanceDisplay.textContent = `Balance: $${balance}`;
+  <nav class="game-nav">
+    <button onclick="goTo('blackjack.html')">Blackjack</button>
+    <button onclick="goTo('roulette.html')">Roulette</button>
+    <button onclick="goTo('wheel.html')">Wheel of Fortune</button>
+    <button onclick="goTo('stats.html')">Stats</button>
+  </nav>
 
-  document.querySelectorAll('.tab-button[data-link], .game-btn[data-link]').forEach(btn => {
-    btn.addEventListener('click', e => {
-      if (btn.classList.contains('active')) return;
-      document.body.classList.add('fade-out');
-      setTimeout(() => {
-        window.location.href = btn.getAttribute('data-link');
-      }, 600);
-    });
-  });
-</script>
+  <section class="chat-section">
+    <h2>🗨️ Casino Lobby Chat</h2>
+    <div class="chat-box" id="chatBox"></div>
+  </section>
+
+  <audio id="clickSound" src="audio/click.mp3"></audio>
+
+  <script>
+    const chatMessages = [
+      "Player22 just won $5,000 on Wheel of Fortune!",
+      "High Roller Alex is on a hot streak!",
+      "Dealer busted! You win $200!",
+      "Player90 hit blackjack!",
+      "Big win on Roulette: $1,200!",
+    ];
+
+    function login() {
+      const name = document.getElementById("username").value;
+      if (!name) return alert("Enter a name to continue!");
+      localStorage.setItem("casinoUser", name);
+      if (!localStorage.getItem("casinoBalance")) {
+        localStorage.setItem("casinoBalance", 1000); // Start with $1000
+      }
+      updatePlayerUI();
+    }
+
+    function updatePlayerUI() {
+      const name = localStorage.getItem("casinoUser");
+      const balance = localStorage.getItem("casinoBalance");
+      if (name) {
+        document.getElementById("playerInfo").style.display = "block";
+        document.getElementById("displayName").textContent = name;
+        document.getElementById("balance").textContent = balance;
+      }
+    }
+
+    function goTo(page) {
+      document.getElementById("clickSound").play();
+      setTimeout(() => window.location.href = page, 300);
+    }
+
+    function cycleChat() {
+      const box = document.getElementById("chatBox");
+      const msg = chatMessages[Math.floor(Math.random() * chatMessages.length)];
+      const p = document.createElement("p");
+      p.textContent = msg;
+      box.appendChild(p);
+      if (box.children.length > 10) box.removeChild(box.children[0]);
+    }
+
+    setInterval(cycleChat, 3000);
+    window.onload = updatePlayerUI;
+  </script>
 </body>
 </html>
