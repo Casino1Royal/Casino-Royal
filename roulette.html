@@ -67,6 +67,7 @@
     const spinBtn = document.getElementById('spin-wheel-btn');
     const betForm = document.getElementById('roulette-bet-form');
 
+    // Initialize balance; this will be overridden below
     let balance = parseInt(localStorage.getItem('casinoBalance')) || 1000;
     let currentBet = 0;
     let currentBetType = null;
@@ -228,12 +229,12 @@
         balance -= currentBet;
         messageArea.textContent = `Number ${winningNumber} - You lose $${currentBet}.`;
       }
+      updateBalance(balance);
       updateBalanceDisplay();
     }
 
     function updateBalanceDisplay() {
       balanceDisplay.textContent = `Balance: $${balance}`;
-      localStorage.setItem('casinoBalance', balance);
     }
 
     allInBtn.addEventListener('click', () => {
@@ -244,6 +245,33 @@
 
     updateBalanceDisplay();
     drawWheel(0);
+
+    // === NEW BALANCE & LOGIN SYNC CODE BELOW ===
+    (function() {
+      const currentUser = localStorage.getItem('casinoUser');
+      if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+      const balanceKey = `casinoBalance_${currentUser}`;
+
+      // Load user-specific balance or init it
+      let userBalance = parseInt(localStorage.getItem(balanceKey));
+      if (isNaN(userBalance)) {
+        userBalance = 1000;
+        localStorage.setItem(balanceKey, userBalance);
+      }
+      balance = userBalance;
+      updateBalanceDisplay();
+
+      // Override updateBalance to store per-user balance
+      window.updateBalance = function(newBalance) {
+        balance = newBalance;
+        localStorage.setItem(balanceKey, balance);
+        updateBalanceDisplay();
+      };
+    })();
+
   })();
 </script>
 </body>

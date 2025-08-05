@@ -87,6 +87,7 @@
     const standBtn = document.getElementById('stand-btn');
     const resetBtn = document.getElementById('reset-btn');
 
+    // NOTE: balance initialized here, but we will override it from user data below
     let balance = parseInt(localStorage.getItem('casinoBalance')) || 1000;
     let currentBet = 0;
 
@@ -100,7 +101,7 @@
 
     function updateBalanceDisplay() {
       balanceDisplay.textContent = `Balance: $${balance}`;
-      localStorage.setItem('casinoBalance', balance);
+      // Save user-specific balance (see below)
     }
 
     function createDeck() {
@@ -227,7 +228,7 @@
       } else {
         result = 'Push (tie). Bet returned.';
       }
-      updateBalanceDisplay();
+      updateBalance(balance);
       showMessage(result);
       betInput.disabled = false;
       allInBtn.disabled = false;
@@ -262,7 +263,7 @@
       gameActive = true;
       betInput.disabled = true;
       allInBtn.disabled = true;
-      dealBtn.disabled = true;
+      dealBtn.disabled = false; // keep enabled to allow reset only by reset button
       hitBtn.disabled = false;
       standBtn.disabled = false;
     });
@@ -301,7 +302,34 @@
       betInput.value = balance;
     });
 
+    // Initial call to reset game UI
     resetGame();
+
+    // === NEW BALANCE & LOGIN SYNC CODE BELOW ===
+    (function() {
+      const currentUser = localStorage.getItem('casinoUser');
+      if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+      const balanceKey = `casinoBalance_${currentUser}`;
+
+      // Load user-specific balance or init it
+      let userBalance = parseInt(localStorage.getItem(balanceKey));
+      if (isNaN(userBalance)) {
+        userBalance = 1000;
+        localStorage.setItem(balanceKey, userBalance);
+      }
+      balance = userBalance;
+      updateBalanceDisplay();
+
+      // Override updateBalance to store per-user balance
+      window.updateBalance = function(newBalance) {
+        balance = newBalance;
+        localStorage.setItem(balanceKey, balance);
+        updateBalanceDisplay();
+      };
+    })();
   })();
 </script>
 
